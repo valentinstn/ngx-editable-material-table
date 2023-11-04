@@ -1,51 +1,30 @@
 {
-  "name": "angular-workspace",
-  "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "table-dev": "ng build ngx-editable-material-table --configuration development && ng serve",
-    "lint": "ng lint"
+  "name": "ngx-editable-material-table",
+  "version": "0.0.2",
+  "description": "An editable table, build on top of Angular Material, natively for Angular.",
+  "author": "valentinstn",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/valentinstn/ngx-editable-material-table.git"
   },
-  "private": true,
+  "bugs": {
+    "url": "https://github.com/valentinstn/ngx-editable-material-table/issues"
+  },
+  "homepage": "https://github.com/valentinstn/ngx-editable-material-table",
+  "keywords": [
+    "angular",
+    "angular-material",
+    "table",
+    "editable"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/common": "^16.0.0",
+    "@angular/core": "^16.0.0",
+    "@angular/material": "^16.0.0"
+  },
   "dependencies": {
-    "@angular/animations": "^16.2.0",
-    "@angular/cdk": "^16.2.0",
-    "@angular/common": "^16.2.0",
-    "@angular/compiler": "^16.2.0",
-    "@angular/core": "^16.2.0",
-    "@angular/forms": "^16.2.0",
-    "@angular/material": "^16.2.0",
-    "@angular/platform-browser": "^16.2.0",
-    "@angular/platform-browser-dynamic": "^16.2.0",
-    "@angular/router": "^16.2.0",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.13.0"
+    "tslib": "^2.3.0"
   },
-  "devDependencies": {
-    "@angular-devkit/build-angular": "^16.2.6",
-    "@angular-eslint/builder": "16.2.0",
-    "@angular-eslint/eslint-plugin": "16.2.0",
-    "@angular-eslint/eslint-plugin-template": "16.2.0",
-    "@angular-eslint/schematics": "16.2.0",
-    "@angular-eslint/template-parser": "16.2.0",
-    "@angular/cli": "^16.2.5",
-    "@angular/compiler-cli": "^16.2.0",
-    "@types/jasmine": "~4.3.0",
-    "@typescript-eslint/eslint-plugin": "5.62.0",
-    "@typescript-eslint/parser": "5.62.0",
-    "eslint": "^8.49.0",
-    "jasmine-core": "~4.6.0",
-    "karma": "~6.4.0",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
-    "ng-packagr": "^16.2.0",
-    "typescript": "~5.1.3"
-  }
+  "sideEffects": false
 }
