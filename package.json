@@ -1,6 +1,6 @@
 {
   "name": "ngx-editable-material-table",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "An editable table, built on top of Angular Material, natively for Angular.",
   "author": "valentinstn",
   "repository": {
