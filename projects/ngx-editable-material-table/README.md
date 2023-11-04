@@ -1,24 +1,98 @@
-# NgxEditableMaterialTable
+<h1 align="center">Editable Angular Material Table</h1>
+<p align="center">
+    <em>An editable table, build on top of Angular Material, natively for Angular.</em>
+</p>
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.0.
+`ngx-editable-material-table` provides editing functionalities for the native Angular Material table.
 
-## Code scaffolding
+<p align="center">
+    <a href="https://github.com/valentinstn/ngx-editable-material-table/raw/main/table-screenshot.png">
+        <img width="400px" src="https://github.com/valentinstn/ngx-editable-material-table/raw/main/table-screenshot.png">
+    </a>
+</p>
 
-Run `ng generate component component-name --project ngx-editable-material-table` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ngx-editable-material-table`.
-> Note: Don't forget to add `--project ngx-editable-material-table` or else it will be added to the default project in your `angular.json` file. 
 
-## Build
+## Requirements
 
-Run `ng build ngx-editable-material-table` to build the project. The build artifacts will be stored in the `dist/` directory.
+`ngx-editable-material-table` depends on Angular 16+.
 
-## Publishing
+## Installation
 
-After building your library with `ng build ngx-editable-material-table`, go to the dist folder `cd dist/ngx-editable-material-table` and run `npm publish`.
+```
+npm install ngx-editable-material-table
+```
 
-## Running unit tests
+## Usage
 
-Run `ng test ngx-editable-material-table` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Import the (standalone) `NgxEditableMaterialTableComponent`:
 
-## Further help
+```ts
+import { NgxEditableMaterialTableComponent } from 'ngx-editable-material-table';
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+### Template
+
+```html 
+<ngx-editable-material-table
+  [data]="data"
+  [displayedColumns]="displayedColumns"
+  [config]="config"
+></ngx-editable-material-table>
+```
+
+## Configuration example
+
+This library is strictly type:
+
+```ts
+import { EmtConfig, EmtData } from 'ngx-editable-material-table';
+```
+
+Configuration example:
+
+```ts
+const columns = ['position', 'name', 'weight', 'symbol'] as const;
+type ColumnName = typeof columns[number];
+
+const data: EmtData<ColumnName>[] = [
+  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
+  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
+  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
+  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
+  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
+  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
+  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
+  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
+  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
+  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
+];
+
+const config: EmtConfig<ColumnName> = {
+  columns: {
+    weight: {
+      editable: false,
+      name: 'Weight'
+    },
+    position: {
+      name: 'Position'
+    },
+    name: {
+      name: 'Name'
+    },
+    symbol: {
+      name: 'Symbol'
+    }
+  },
+  beforeChange: (changes) => {
+    log('beforeChange', changes);
+    return changes;  // changes can be modified or aborted by returning null
+  },
+  afterChanged: (changes) => {
+    log('afterChanged', changes);
+  }
+}
+```
+
+## License
+
+MIT License
