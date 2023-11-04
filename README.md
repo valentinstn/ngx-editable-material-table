@@ -1,6 +1,6 @@
 <h1 align="center">Editable Angular Material Table</h1>
 <p align="center">
-    <em>An editable table, build on top of Angular Material, natively for Angular.</em>
+    <em>An editable table, built on top of Angular Material, natively for Angular.</em>
 </p>
 
 `ngx-editable-material-table` provides editing functionalities for the native Angular Material table.
