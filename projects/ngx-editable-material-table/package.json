@@ -5,8 +5,19 @@
   "author": "valentinstn",
   "repository": {
     "type": "git",
-    "url": "https://github.com/"
+    "url": "https://github.com/valentinstn/ngx-editable-material-table.git"
   },
+  "bugs": {
+    "url": "https://github.com/valentinstn/ngx-editable-material-table/issues"
+  },
+  "homepage": "https://github.com/valentinstn/ngx-editable-material-table",
+  "keywords": [
+    "angular",
+    "angular-material",
+    "table",
+    "editable"
+  ],
+  "license": "MIT",
   "peerDependencies": {
     "@angular/common": "^16.0.0",
     "@angular/core": "^16.0.0",
