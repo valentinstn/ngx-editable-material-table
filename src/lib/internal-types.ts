@@ -3,6 +3,7 @@ import { EmtDataChange } from "./public-types";
 export interface CellLocation {
   row: number;
   column: string;
+  id: string;
 }
 
 export interface CellDataCreation {

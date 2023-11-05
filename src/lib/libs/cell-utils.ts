@@ -1,9 +1,12 @@
 import { CellLocation } from '../internal-types';
 
 export function getLocationFromCell(el: HTMLElement): CellLocation {
+  const row = Number(el?.getAttribute('data-emt-y'));
+  const column = el?.getAttribute('data-emt-x') as string;
   return {
-    row: Number(el?.getAttribute('data-emt-y')),
-    column: el?.getAttribute('data-emt-x') as string
+    row: row,
+    column: column,
+    id: `${row}---${column}`
   }
 }
 

@@ -10,9 +10,10 @@ import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
 import { EmtConfig, EmtDataChange } from './public-types';
 import { getCellFromLocation, getLocationFromCell } from './libs/cell-utils';
 import { getDefaultColumnConfig } from './libs/column-utils';
-import { CellLocation, ColumnsConfig } from './internal-types';
+import { CellLocation, ColumnConfig, ColumnsConfig } from './internal-types';
 import { prepareChangedData, prepareDeletedData } from './libs/change-generators';
 import { copyTableCellsToClipboard, pastedTableToData } from './libs/clipboard';
+import { log } from './libs/dev-utils';
 
 
 export class AppState {
@@ -48,21 +49,34 @@ export class AppState {
       validatedColumnsConfig[column] = Object.assign(config, (emtConfig?.columns ?? {})[column]);
     }
     this._validatedColumnsConfig$.next(validatedColumnsConfig);
+    emtConfig.columns = validatedColumnsConfig;
     this.config = emtConfig;
+
+    log(emtConfig);
   }
 
   public initCellHandlers(componentElementRef: ElementRef): void {
     this.allCells = Array.from(componentElementRef.nativeElement.querySelectorAll('td.emt-cell'));
   }
 
+  private getColumnConfig(column: string): ColumnConfig {
+    if (!this.config.columns || !this.config.columns[column]) {
+      throw Error(`Invalid column: ${column}`);
+    }
+    return this.config.columns[column] as ColumnConfig;
+  }
+
   public selectElement(el: HTMLElement): void {
     unselectCell(this.selectedCell);
     unHighlightCells(this.highlightedCells);
 
-    this.selectedCell = el;
-    this.selectedCellOriginalData = el.innerHTML.trim();
+    const location = getLocationFromCell(el)
+    if (this.getColumnConfig(location.column).editable) {
+      this.selectedCell = el;
+      this.selectedCellOriginalData = el.innerHTML.trim();
 
-    selectCell(el);
+      selectCell(el);
+    }
   }
 
   public cellEditKeyPress(
@@ -121,10 +135,6 @@ export class AppState {
   }
 
   private applyChanges(rawChanges: EmtDataChange): void {
-    if (!this.selectedCell) {
-      return;
-    }
-
     // Apply beforeChange callback
     const changes = this.config?.beforeChange ? this.config.beforeChange(
       structuredClone(rawChanges)
@@ -137,19 +147,25 @@ export class AppState {
 
     // Support multiple updated fields
     for (const cellDataChange of changes.updated) {
+      if (!this.getColumnConfig(cellDataChange.location.column).editable) {
+        continue;
+      }
+
       const cell = getCellFromLocation(cellDataChange.location, this.allCells);
       if (cell) {
         cell.innerHTML = cellDataChange.value;
       }
     }
 
-    if (changes.updated.length) {
-      this.selectedCell.innerHTML = changes.updated[0].value;
-    }
-
     if (changes.deleted.length) {
+      const cellsToDeleteIds = changes.deleted.map(l => l.id);
       deleteCellContent(
-        this.highlightedCells.filter(c => changes.deleted.includes(getLocationFromCell(c)))
+        this.highlightedCells.filter(
+          (c) => {
+            const location = getLocationFromCell(c);
+            return cellsToDeleteIds.includes(location.id) && this.getColumnConfig(location.column).editable
+          }
+        )
       );
     }
 
