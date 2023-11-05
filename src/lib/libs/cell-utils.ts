@@ -6,7 +6,7 @@ export function getLocationFromCell(el: HTMLElement): CellLocation {
   return {
     row: row,
     column: column,
-    id: `${row}---${column}`
+    id: `${row}⨯${column}`
   }
 }
 
