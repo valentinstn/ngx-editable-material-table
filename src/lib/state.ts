@@ -13,7 +13,6 @@ import { getDefaultColumnConfig } from './libs/column-utils';
 import { CellLocation, ColumnConfig, ColumnsConfig } from './internal-types';
 import { prepareChangedData, prepareDeletedData } from './libs/change-generators';
 import { copyTableCellsToClipboard, pastedTableToData } from './libs/clipboard';
-import { log } from './libs/dev-utils';
 
 
 export class AppState {
@@ -37,7 +36,7 @@ export class AppState {
 
   private _validatedColumnsConfig$ = new BehaviorSubject<ColumnsConfig | undefined>(undefined);
   public validatedColumnsConfig$: Observable<ColumnsConfig  | undefined> = this._validatedColumnsConfig$;
-  private config: EmtConfig = {};
+  private _config: EmtConfig = {};
 
   public initConfig(
     emtConfig: EmtConfig,
@@ -48,11 +47,21 @@ export class AppState {
       const config = getDefaultColumnConfig(column);
       validatedColumnsConfig[column] = Object.assign(config, (emtConfig?.columns ?? {})[column]);
     }
-    this._validatedColumnsConfig$.next(validatedColumnsConfig);
-    emtConfig.columns = validatedColumnsConfig;
-    this.config = emtConfig;
+    this.config = Object.assign(
+      emtConfig,
+      {
+        columns: validatedColumnsConfig
+      } as EmtConfig
+    );
+  }
 
-    log(emtConfig);
+  set config(config: EmtConfig) {
+    this._config = config;
+    this._validatedColumnsConfig$.next(config.columns);
+  }
+
+  get config(): EmtConfig {
+    return this._config;
   }
 
   public initCellHandlers(componentElementRef: ElementRef): void {
