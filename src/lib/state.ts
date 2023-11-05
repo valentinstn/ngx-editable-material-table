@@ -169,7 +169,7 @@ export class AppState {
     if (changes.deleted.length) {
       const cellsToDeleteIds = changes.deleted.map(l => l.id);
       deleteCellContent(
-        this.highlightedCells.filter(
+        this.allCells.filter(
           (c) => {
             const location = getLocationFromCell(c);
             return cellsToDeleteIds.includes(location.id) && this.getColumnConfig(location.column).editable
@@ -219,9 +219,13 @@ export class AppState {
   }
 
   private getHighlightedElementLocations(): CellLocation[] {
-    return this.highlightedCells.map(
+    const cellLocationsToDelete = this.highlightedCells.map(
       (el) => getLocationFromCell(el)
     )
+    if (this.selectedCell) {
+      cellLocationsToDelete.push(getLocationFromCell(this.selectedCell));
+    }
+    return cellLocationsToDelete;
   }
 }
 
