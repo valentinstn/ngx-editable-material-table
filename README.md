@@ -9,7 +9,9 @@
     </a>
 </p>
 
-[Video Demo](https://youtu.be/WKFSZJyR8qU)
+<p align="center">
+  <a href="https://youtu.be/WKFSZJyR8qU">Demo</a>
+</p>
 
 ## Requirements
 
