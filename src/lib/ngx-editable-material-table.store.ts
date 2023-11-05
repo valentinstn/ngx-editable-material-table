@@ -1,4 +1,4 @@
-import { ElementRef } from '@angular/core';
+import { ElementRef, Injectable } from '@angular/core';
 import {
   deleteCellContent, highlightCells,
   highlightCellsWithMouse,
@@ -15,7 +15,8 @@ import { prepareChangedData, prepareDeletedData } from './libs/change-generators
 import { copyTableCellsToClipboard, pastedTableToData } from './libs/clipboard';
 
 
-export class AppState {
+@Injectable()
+export class NgxEditableMaterialTableStore {
   // All the cells of the table
   allCells: HTMLElement[] = [];
   // The currently highlighted cells
@@ -36,7 +37,17 @@ export class AppState {
 
   private _validatedColumnsConfig$ = new BehaviorSubject<ColumnsConfig | undefined>(undefined);
   public validatedColumnsConfig$: Observable<ColumnsConfig  | undefined> = this._validatedColumnsConfig$;
+
   private _config: EmtConfig = {};
+
+  set config(config: EmtConfig) {
+    this._config = config;
+    this._validatedColumnsConfig$.next(config.columns);
+  }
+
+  get config(): EmtConfig {
+    return this._config;
+  }
 
   public initConfig(
     emtConfig: EmtConfig,
@@ -55,15 +66,6 @@ export class AppState {
     );
   }
 
-  set config(config: EmtConfig) {
-    this._config = config;
-    this._validatedColumnsConfig$.next(config.columns);
-  }
-
-  get config(): EmtConfig {
-    return this._config;
-  }
-
   public initCellHandlers(componentElementRef: ElementRef): void {
     this.allCells = Array.from(componentElementRef.nativeElement.querySelectorAll('td.emt-cell'));
   }
@@ -75,7 +77,11 @@ export class AppState {
     return this.config.columns[column] as ColumnConfig;
   }
 
-  public selectElement(el: HTMLElement): void {
+  public selectCell(el: HTMLElement | undefined): void {
+    if (!el) {
+      return;
+    }
+
     unselectCell(this.selectedCell);
     unHighlightCells(this.highlightedCells);
 
@@ -133,13 +139,17 @@ export class AppState {
 
     // If the cell data changed, emit a new value
     if (this.selectedCell && newValue !== this.selectedCellOriginalData) {
-      const location = this.getSelectedElementLocation();
+      const location = this.getSelectedCellLocation();
       const changes = prepareChangedData([{
         location: location,
         oldValue: this.selectedCellOriginalData,
         value: newValue
       }]);
+      const selectedCell = this.selectedCell;
       this.applyChanges(changes);
+
+      debugger;
+      this.navigate(selectedCell, 'next');
     }
   }
 
@@ -214,7 +224,7 @@ export class AppState {
     )
   }
 
-  private getSelectedElementLocation(): CellLocation {
+  private getSelectedCellLocation(): CellLocation {
     return getLocationFromCell(this.selectedCell as HTMLElement);
   }
 
@@ -226,6 +236,16 @@ export class AppState {
       cellLocationsToDelete.push(getLocationFromCell(this.selectedCell));
     }
     return cellLocationsToDelete;
+  }
+
+  private navigate(currentCell: HTMLElement, which: 'next'): void {
+    const previousCellLocation = getLocationFromCell(currentCell);
+    if (which === 'next') {
+      this.selectCell(getCellFromLocation({
+        row: previousCellLocation.row + 1,
+        column: previousCellLocation.column
+      }, this.allCells));
+    }
   }
 }
 

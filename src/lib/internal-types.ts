@@ -1,4 +1,4 @@
-import { EmtDataChange } from "./public-types";
+import { EmtDataChange } from './public-types';
 
 export interface CellLocation {
   row: number;

@@ -10,7 +10,10 @@ export function getLocationFromCell(el: HTMLElement): CellLocation {
   }
 }
 
-export function getCellFromLocation(location: CellLocation, cells: HTMLElement[]): HTMLElement | undefined {
+export function getCellFromLocation(
+  location: Pick<CellLocation, 'row' | 'column'>,
+  cells: HTMLElement[]
+): HTMLElement | undefined {
   return cells.find((c) =>
     c.getAttribute('data-emt-y') === String(location.row) &&
     c.getAttribute('data-emt-x') === location.column

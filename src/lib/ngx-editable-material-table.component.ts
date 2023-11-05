@@ -12,7 +12,7 @@ import {
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { fromEvent, Subject, Subscription, takeUntil, throttleTime } from 'rxjs';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { AppState } from './state';
+import { NgxEditableMaterialTableStore } from './ngx-editable-material-table.store';
 import { EmtConfig, EmtData, EmtDataChange } from './public-types';
 
 
@@ -23,6 +23,7 @@ import { EmtConfig, EmtData, EmtDataChange } from './public-types';
   styleUrls: ['./ngx-editable-material-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
+  providers: [NgxEditableMaterialTableStore],
   imports: [CommonModule, MatTableModule]
 })
 export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -39,19 +40,19 @@ export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit,
   // The material table
   @ViewChild('editableTable') editableTable: ElementRef<MatTable<unknown>> | undefined;
 
-  private readonly appState = new AppState();
+  private readonly store = new NgxEditableMaterialTableStore();
   private readonly stopMouseMoveSub$ = new Subject<void>();
   private readonly componentSubscriptions: Subscription[] = []
 
-  public readonly columnsConfig$ = this.appState.validatedColumnsConfig$;
+  public readonly columnsConfig$ = this.store.validatedColumnsConfig$;
 
   constructor(
     private elementRef: ElementRef,
     @Inject(DOCUMENT) private document: Document
   ) {
     this.document.addEventListener('click', (event: MouseEvent) => {
-      if (event.target !== this.appState.selectedCell) {
-        this.appState.acceptSelectedElementChanges();
+      if (event.target !== this.store.selectedCell) {
+        this.store.acceptSelectedElementChanges();
       }
     });
 
@@ -59,16 +60,16 @@ export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit,
       if (event.key === 'Escape') {
         this.reset();
       } else if (event.key === 'Delete' || event.key === 'Backspace') {
-        this.appState.deleteContentOfHighlightedCells();
+        this.store.deleteContentOfHighlightedCells();
       } else if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
-        this.appState.highlightedElementsToClipboard();
+        this.store.highlightedElementsToClipboard();
       } else if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
-        this.appState.pasteFromClipboard();
+        this.store.pasteFromClipboard();
         event.preventDefault();
       }
     });
 
-    const tableDataChangeSub = this.appState.tableDataChange$.subscribe(
+    const tableDataChangeSub = this.store.tableDataChange$.subscribe(
       (tableDataChange) => this.dataChanged.emit(tableDataChange)
     )
     this.componentSubscriptions = [
@@ -77,11 +78,11 @@ export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit,
   }
 
   ngOnInit() {
-    this.appState.initConfig(this.config, this.displayedColumns);
+    this.store.initConfig(this.config, this.displayedColumns);
   }
 
   ngAfterViewInit() {
-    this.appState.initCellHandlers(this.elementRef);
+    this.store.initCellHandlers(this.elementRef);
   }
 
   ngOnDestroy() {
@@ -95,26 +96,26 @@ export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit,
     // Ensure, microtasks are executed first (e.g. accepting previous changes), and only
     // afterwords, this cell is selected.
     setTimeout(
-      () => this.appState.selectElement(event.target as HTMLElement)
+      () => this.store.selectCell(event.target as HTMLElement)
     );
   }
 
   // Highlight column
   public highlightColumn(column: string): void {
-    this.appState.highlightColumn(column);
+    this.store.highlightColumn(column);
   }
 
   // This function is executed after each keypress while editing a table cell
   public cellEditKeyPress(
     event: KeyboardEvent
   ) {
-    this.appState.cellEditKeyPress(event);
+    this.store.cellEditKeyPress(event);
   }
 
   // Mouse select
   public activateMouseSelection(): void {
     // Reset existing highlighted/selected cells
-    this.appState.unselectCells();
+    this.store.unselectCells();
 
     let originalMouseEvent: MouseEvent;
     fromEvent<MouseEvent>(this.elementRef.nativeElement, 'mousemove').pipe(
@@ -124,7 +125,7 @@ export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit,
       if (originalMouseEvent === undefined) {
         originalMouseEvent = currentMouseEvent;
       }
-      this.appState.highlightCellsWithMouse(
+      this.store.highlightCellsWithMouse(
         originalMouseEvent,
         currentMouseEvent
       );
@@ -139,6 +140,6 @@ export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit,
   // Reset any current selection
   public reset(): void {
     this.deactivateMouseSelection();
-    this.appState.unHighlightCells();
+    this.store.unHighlightCells();
   }
 }
