@@ -101,10 +101,18 @@ export function getBorderCells(
 
 
 export function selectCell(el: HTMLElement): void {
-  el.contentEditable = 'true';
+  // el.contentEditable = 'true';
   el.classList.add(SELECTED_CLASS);
-  selectDivContent(el);
-  el.focus();
+  // selectDivContent(el);
+  // el.focus();
+}
+
+export function setCellEditable(el: HTMLElement): void {
+  if (el.contentEditable !== 'true') {
+    el.contentEditable = 'true';
+    selectDivContent(el);
+    el.focus();
+  }
 }
 
 export function unselectCell(el: HTMLElement | undefined): void {

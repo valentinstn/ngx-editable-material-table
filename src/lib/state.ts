@@ -2,7 +2,7 @@ import { ElementRef } from '@angular/core';
 import {
   deleteCellContent, highlightCells,
   highlightCellsWithMouse,
-  selectCell,
+  selectCell, setCellEditable,
   unHighlightCells,
   unselectCell
 } from './libs/selection-utils';
@@ -75,7 +75,7 @@ export class AppState {
     return this.config.columns[column] as ColumnConfig;
   }
 
-  public selectElement(el: HTMLElement): void {
+  public selectCell(el: HTMLElement): void {
     unselectCell(this.selectedCell);
     unHighlightCells(this.highlightedCells);
 
@@ -88,11 +88,17 @@ export class AppState {
     }
   }
 
+  public startEditingIfCellSelected(): void {
+    if (this.selectedCell) {
+      setCellEditable(this.selectedCell);
+    }
+  }
+
   public cellEditKeyPress(
     event: KeyboardEvent
   ): void {
     if (event.key === 'Enter') {
-      this.acceptSelectedElementChanges( );
+      this.acceptSelectedElementChanges();
     } else if (event.key === 'Escape') {
       this.rejectSelectedElementChanges();
     }
@@ -141,6 +147,9 @@ export class AppState {
       }]);
       this.applyChanges(changes);
     }
+
+    // TODO: Keep cell activated
+    this.navigateCell('down');
   }
 
   private applyChanges(rawChanges: EmtDataChange): void {
@@ -180,8 +189,8 @@ export class AppState {
 
     this._tableDataChange$.next(structuredClone(changes));
 
-    unselectCell(this.selectedCell);
-    this.selectedCell = undefined;
+    // unselectCell(this.selectedCell);
+    // this.selectedCell = undefined;
     this.selectedCellOriginalData = '';
 
     this.unHighlightCells();
@@ -214,6 +223,33 @@ export class AppState {
     )
   }
 
+  public navigateCell(direction: 'up' | 'down' | 'left' | 'right'): void {
+    if (!this.selectedCell) {
+      return;
+    }
+    const currentLocation = getLocationFromCell(this.selectedCell);
+    const newLocation: CellLocation = {...currentLocation};
+
+    if (direction === 'up') {
+      newLocation.row = currentLocation.row - 1;
+    } else if (direction === 'down') {
+      newLocation.row = currentLocation.row + 1;
+    } else {
+      const columnNames = this.getColumnNames();
+      const currentIdx = columnNames.findIndex(c => c === currentLocation.column);
+      if (direction === 'left') {
+        newLocation.column = columnNames[currentIdx - 1];
+      } else {
+        newLocation.column = columnNames[currentIdx + 1];
+      }
+    }
+    const newCell = getCellFromLocation(newLocation, this.allCells);
+    if (!newCell) {
+      return;
+    }
+    this.selectCell(newCell);
+  }
+
   private getSelectedElementLocation(): CellLocation {
     return getLocationFromCell(this.selectedCell as HTMLElement);
   }
@@ -226,6 +262,10 @@ export class AppState {
       cellLocationsToDelete.push(getLocationFromCell(this.selectedCell));
     }
     return cellLocationsToDelete;
+  }
+
+  private getColumnNames(): string[] {
+    return Object.keys(this.config.columns as Record<string, unknown>);
   }
 }
 
