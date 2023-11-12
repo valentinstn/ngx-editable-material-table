@@ -130,6 +130,10 @@ export class AppState {
   }
 
   public deleteContentOfHighlightedCells(): void {
+    if (this.selectedCell?.contentEditable === 'true') {
+      return;
+    }
+
     const changes = prepareDeletedData(this.getHighlightedElementLocations());
     this.applyChanges(changes);
   }
@@ -147,9 +151,6 @@ export class AppState {
       }]);
       this.applyChanges(changes);
     }
-
-    // TODO: Keep cell activated
-    this.navigateCell('down');
   }
 
   private applyChanges(rawChanges: EmtDataChange): void {

@@ -14,6 +14,7 @@ import { fromEvent, Subject, Subscription, takeUntil, throttleTime } from 'rxjs'
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { AppState } from './state';
 import { EmtConfig, EmtData, EmtDataChange } from './public-types';
+import { SPECIAL_KEYS } from './libs/keys';
 
 
 @Component({
@@ -56,12 +57,11 @@ export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit,
     });
 
     this.document.addEventListener('keydown', (event: KeyboardEvent) => {
-      console.log(event.key);
-
       if (event.key === 'ArrowUp') {
         this.appState.navigateCell('up');
       } else if (event.key === 'ArrowDown' || event.key === 'Enter') {
         this.appState.navigateCell('down');
+        event.preventDefault();
       } else if (event.key === 'ArrowLeft') {
         this.appState.navigateCell('left');
       } else if (event.key === 'ArrowRight' || event.key === 'Tab') {
@@ -120,6 +120,10 @@ export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit,
   public cellEditKeyPress(
     event: KeyboardEvent
   ) {
+    if (SPECIAL_KEYS.includes(event.key)) {
+      event.preventDefault();
+    }
+
     this.appState.cellEditKeyPress(event);
   }
 
