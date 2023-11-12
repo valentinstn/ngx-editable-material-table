@@ -1,10 +1,10 @@
 import {
+  AfterDataChangeCallback,
+  BeforeDataChangeCallback,
   CellDataChange,
   CellDataCreation,
   CellLocation,
-  ColumnsConfig,
-  BeforeDataChangeCallback,
-  AfterDataChangeCallback
+  ColumnsConfig
 } from './internal-types';
 
 export interface EmtDataChange {

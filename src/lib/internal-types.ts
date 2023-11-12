@@ -1,4 +1,4 @@
-import { EmtDataChange } from "./public-types";
+import { EmtDataChange } from './public-types';
 
 export interface CellLocation {
   row: number;
@@ -29,3 +29,11 @@ export interface ColumnConfig {
 }
 
 export type ColumnsConfig<T extends string = string> = Partial<Record<T, ColumnConfig>>;
+
+export interface ValidatedEmtConfig<T extends string = string> {
+  columns: ColumnsConfig<T>,
+  // The changes, before data was changed. The change data can be modified or aborted by returning null.
+  beforeChange?: BeforeDataChangeCallback
+  // Emitted, after the data was changed
+  afterChanged?: AfterDataChangeCallback
+}
