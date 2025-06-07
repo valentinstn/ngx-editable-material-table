@@ -17,13 +17,12 @@ import { EmtConfig, EmtData, EmtDataChange } from './public-types';
 
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'ngx-editable-material-table',
-  templateUrl: 'ngx-editable-material-table.component.html',
-  styleUrls: ['./ngx-editable-material-table.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
-  imports: [CommonModule, MatTableModule]
+    // eslint-disable-next-line @angular-eslint/component-selector
+    selector: 'ngx-editable-material-table',
+    templateUrl: 'ngx-editable-material-table.component.html',
+    styleUrls: ['./ngx-editable-material-table.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [CommonModule, MatTableModule]
 })
 export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit, OnDestroy {
   // General Material table inputs
