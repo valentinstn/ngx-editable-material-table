@@ -1,21 +1,21 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { NgxEditableMaterialTableComponent } from './ngx-editable-material-table.component';
+import { NgxEditableMaterialTableComponent } from "./ngx-editable-material-table.component";
 
-describe('NgxEditableMaterialTableComponent', () => {
+describe("NgxEditableMaterialTableComponent", () => {
   let component: NgxEditableMaterialTableComponent;
   let fixture: ComponentFixture<NgxEditableMaterialTableComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [NgxEditableMaterialTableComponent]
+      imports: [NgxEditableMaterialTableComponent],
     });
     fixture = TestBed.createComponent(NgxEditableMaterialTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

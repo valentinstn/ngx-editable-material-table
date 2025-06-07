@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://stackblitz.com/edit/stackblitz-starters-v4k1ef?file=src%2Fapp.component.ts">Demo</a> 
+  <a href="https://stackblitz.com/edit/stackblitz-starters-vgjpstcn?file=src%2Fapp.component.ts">Demo</a> 
   &middot;
   <a href="https://youtu.be/WKFSZJyR8qU">Video</a>
 </p>

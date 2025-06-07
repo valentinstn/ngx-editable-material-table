@@ -7,24 +7,24 @@ import {
   ElementRef,
   Inject,
   AfterViewInit,
-  Output, OnDestroy, OnInit
+  Output, OnDestroy, OnInit,
+  DOCUMENT
 } from '@angular/core';
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { fromEvent, Subject, Subscription, takeUntil, throttleTime } from 'rxjs';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { AppState } from './state';
 import { EmtConfig, EmtData, EmtDataChange } from './public-types';
 import { SPECIAL_KEYS } from './libs/keys';
 
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'ngx-editable-material-table',
-  templateUrl: 'ngx-editable-material-table.component.html',
-  styleUrls: ['./ngx-editable-material-table.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
-  imports: [CommonModule, MatTableModule]
+    // eslint-disable-next-line @angular-eslint/component-selector
+    selector: 'ngx-editable-material-table',
+    templateUrl: 'ngx-editable-material-table.component.html',
+    styleUrls: ['./ngx-editable-material-table.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [CommonModule, MatTableModule]
 })
 export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit, OnDestroy {
   // General Material table inputs
