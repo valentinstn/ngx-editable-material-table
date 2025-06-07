@@ -15,6 +15,7 @@ import { fromEvent, Subject, Subscription, takeUntil, throttleTime } from 'rxjs'
 import { CommonModule } from '@angular/common';
 import { AppState } from './state';
 import { EmtConfig, EmtData, EmtDataChange } from './public-types';
+import { SPECIAL_KEYS } from './libs/keys';
 
 
 @Component({
@@ -56,7 +57,16 @@ export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit,
     });
 
     this.document.addEventListener('keydown', (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === 'ArrowUp') {
+        this.appState.navigateCell('up');
+      } else if (event.key === 'ArrowDown' || event.key === 'Enter') {
+        this.appState.navigateCell('down');
+        event.preventDefault();
+      } else if (event.key === 'ArrowLeft') {
+        this.appState.navigateCell('left');
+      } else if (event.key === 'ArrowRight' || event.key === 'Tab') {
+        this.appState.navigateCell('right');
+      } else if (event.key === 'Escape') {
         this.reset();
       } else if (event.key === 'Delete' || event.key === 'Backspace') {
         this.appState.deleteContentOfHighlightedCells();
@@ -65,6 +75,8 @@ export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit,
       } else if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
         this.appState.pasteFromClipboard();
         event.preventDefault();
+      } else {
+        this.appState.startEditingIfCellSelected();
       }
     });
 
@@ -95,7 +107,7 @@ export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit,
     // Ensure, microtasks are executed first (e.g. accepting previous changes), and only
     // afterwords, this cell is selected.
     setTimeout(
-      () => this.appState.selectElement(event.target as HTMLElement)
+      () => this.appState.selectCell(event.target as HTMLElement)
     );
   }
 
@@ -108,6 +120,10 @@ export class NgxEditableMaterialTableComponent implements OnInit, AfterViewInit,
   public cellEditKeyPress(
     event: KeyboardEvent
   ) {
+    if (SPECIAL_KEYS.includes(event.key)) {
+      event.preventDefault();
+    }
+
     this.appState.cellEditKeyPress(event);
   }
 

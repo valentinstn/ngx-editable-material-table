@@ -1,8 +1,10 @@
 import { ElementRef } from '@angular/core';
 import {
-  deleteCellContent, highlightCells,
+  deleteCellContent,
+  highlightCells,
   highlightCellsWithMouse,
   selectCell,
+  setCellEditable,
   unHighlightCells,
   unselectCell
 } from './libs/selection-utils';
@@ -10,10 +12,9 @@ import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
 import { EmtConfig, EmtDataChange } from './public-types';
 import { getCellFromLocation, getLocationFromCell } from './libs/cell-utils';
 import { getDefaultColumnConfig } from './libs/column-utils';
-import { CellLocation, ColumnConfig, ColumnsConfig } from './internal-types';
+import { CellLocation, ColumnConfig, ColumnsConfig, ValidatedEmtConfig } from './internal-types';
 import { prepareChangedData, prepareDeletedData } from './libs/change-generators';
 import { copyTableCellsToClipboard, pastedTableToData } from './libs/clipboard';
-import { log } from './libs/dev-utils';
 
 
 export class AppState {
@@ -37,7 +38,7 @@ export class AppState {
 
   private _validatedColumnsConfig$ = new BehaviorSubject<ColumnsConfig | undefined>(undefined);
   public validatedColumnsConfig$: Observable<ColumnsConfig  | undefined> = this._validatedColumnsConfig$;
-  private config: EmtConfig = {};
+  private _config!: ValidatedEmtConfig;
 
   public initConfig(
     emtConfig: EmtConfig,
@@ -48,11 +49,21 @@ export class AppState {
       const config = getDefaultColumnConfig(column);
       validatedColumnsConfig[column] = Object.assign(config, (emtConfig?.columns ?? {})[column]);
     }
-    this._validatedColumnsConfig$.next(validatedColumnsConfig);
-    emtConfig.columns = validatedColumnsConfig;
-    this.config = emtConfig;
+    this.config = Object.assign(
+      emtConfig,
+      {
+        columns: validatedColumnsConfig
+      } as ValidatedEmtConfig
+    );
+  }
 
-    log(emtConfig);
+  set config(config: ValidatedEmtConfig) {
+    this._config = config;
+    this._validatedColumnsConfig$.next(config.columns);
+  }
+
+  get config(): ValidatedEmtConfig {
+    return this._config;
   }
 
   public initCellHandlers(componentElementRef: ElementRef): void {
@@ -66,7 +77,7 @@ export class AppState {
     return this.config.columns[column] as ColumnConfig;
   }
 
-  public selectElement(el: HTMLElement): void {
+  public selectCell(el: HTMLElement): void {
     unselectCell(this.selectedCell);
     unHighlightCells(this.highlightedCells);
 
@@ -79,11 +90,17 @@ export class AppState {
     }
   }
 
+  public startEditingIfCellSelected(): void {
+    if (this.selectedCell) {
+      setCellEditable(this.selectedCell);
+    }
+  }
+
   public cellEditKeyPress(
     event: KeyboardEvent
   ): void {
     if (event.key === 'Enter') {
-      this.acceptSelectedElementChanges( );
+      this.acceptSelectedElementChanges();
     } else if (event.key === 'Escape') {
       this.rejectSelectedElementChanges();
     }
@@ -115,7 +132,14 @@ export class AppState {
   }
 
   public deleteContentOfHighlightedCells(): void {
-    const changes = prepareDeletedData(this.getHighlightedElementLocations());
+    if (this.selectedCell?.contentEditable === 'true') {
+      return;
+    }
+
+    const editableColumnNames = this.getColumnNames(true);
+    const changes = prepareDeletedData(
+      this.getHighlightedElementLocations().filter(c => editableColumnNames.includes(c.column))
+    );
     this.applyChanges(changes);
   }
 
@@ -160,7 +184,7 @@ export class AppState {
     if (changes.deleted.length) {
       const cellsToDeleteIds = changes.deleted.map(l => l.id);
       deleteCellContent(
-        this.highlightedCells.filter(
+        this.allCells.filter(
           (c) => {
             const location = getLocationFromCell(c);
             return cellsToDeleteIds.includes(location.id) && this.getColumnConfig(location.column).editable
@@ -171,8 +195,8 @@ export class AppState {
 
     this._tableDataChange$.next(structuredClone(changes));
 
-    unselectCell(this.selectedCell);
-    this.selectedCell = undefined;
+    // unselectCell(this.selectedCell);
+    // this.selectedCell = undefined;
     this.selectedCellOriginalData = '';
 
     this.unHighlightCells();
@@ -205,6 +229,33 @@ export class AppState {
     )
   }
 
+  public navigateCell(direction: 'up' | 'down' | 'left' | 'right'): void {
+    if (!this.selectedCell) {
+      return;
+    }
+    const currentLocation = getLocationFromCell(this.selectedCell);
+    const newLocation: CellLocation = {...currentLocation};
+
+    if (direction === 'up') {
+      newLocation.row = currentLocation.row - 1;
+    } else if (direction === 'down') {
+      newLocation.row = currentLocation.row + 1;
+    } else {
+      const columnNames = this.getColumnNames();
+      const currentIdx = columnNames.findIndex(c => c === currentLocation.column);
+      if (direction === 'left') {
+        newLocation.column = columnNames[currentIdx - 1];
+      } else {
+        newLocation.column = columnNames[currentIdx + 1];
+      }
+    }
+    const newCell = getCellFromLocation(newLocation, this.allCells);
+    if (!newCell) {
+      return;
+    }
+    this.selectCell(newCell);
+  }
+
   private getSelectedElementLocation(): CellLocation {
     return getLocationFromCell(this.selectedCell as HTMLElement);
   }
@@ -212,7 +263,17 @@ export class AppState {
   private getHighlightedElementLocations(): CellLocation[] {
     return this.highlightedCells.map(
       (el) => getLocationFromCell(el)
-    )
+    );
+  }
+
+  private getColumnNames(filterByEditable?: boolean | undefined): string[] {
+    let columnNames = Object.keys(this.config.columns as Record<string, unknown>);
+    if (filterByEditable !== undefined) {
+      columnNames = columnNames.filter(
+        (cn) => (this.config.columns[cn] as ColumnConfig).editable === filterByEditable
+      )
+    }
+    return columnNames;
   }
 }
 
